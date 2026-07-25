@@ -1,0 +1,8 @@
+name = "caverco-partners-landing"
+compatibility_date = "2024-09-01"
+pages_build_output_dir = "."
+
+[[d1_databases]]
+binding = "DB"
+database_name = "caverco_contacts"
+database_id = "REEMPLAZAR_CON_EL_ID_QUE_ENTREGA_WRANGLER_D1_CREATE"
