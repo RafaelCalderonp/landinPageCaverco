@@ -11,7 +11,10 @@ servicios.html        Detalle de servicios
 contacto.html         Formulario de contacto + datos
 css/styles.css        Estilos (paleta y tipografía)
 js/main.js            Menú móvil, formulario, año dinámico del footer
-assets/favicon.svg    Favicon (monograma "CP")
+assets/logo-full.png  Logo completo (isotipo + wordmark), fondo transparente
+assets/logo-mark.png  Solo el isotipo, usado en el header/footer
+assets/favicon.png    Favicon generado a partir del isotipo
+Logo.png              Archivo original del logo (mockup) tal como fue provisto
 functions/api/contact.js   Cloudflare Pages Function: recibe el formulario y lo guarda en D1
 schema.sql             Esquema de la tabla `contacts`
 wrangler.toml           Config de Cloudflare Pages + binding de D1
@@ -19,9 +22,18 @@ robots.txt, sitemap.xml SEO básico
 _headers                Cabeceras de seguridad para Cloudflare Pages
 ```
 
+## Logo
+
+El logo original (`Logo.png`) es un mockup (fondo papel + sombra). Se generaron a partir de él dos versiones limpias con fondo transparente:
+- `assets/logo-mark.png`: solo el isotipo (círculo + balanza + barras), usado como ícono junto al nombre en el header/footer.
+- `assets/logo-full.png`: isotipo + wordmark completo, disponible por si se necesita en algún lugar como pieza única.
+- `assets/favicon.png`: favicon generado a partir del isotipo.
+
+El isotipo es gris oscuro neutro (aprox. `#515455`), sin azul. Si más adelante se dispone de un archivo vectorial (SVG/AI) del logo, reemplazar estos PNG por esa versión dará mejor nitidez a cualquier tamaño.
+
 ## Paleta de colores
 
-Definida en `css/styles.css` (`:root`). Azul corporativo sobrio (`--navy`, `--blue-accent`) sobre fondos blancos/grises. Como aún no se confirmaron los colores exactos del ERP, esta paleta es un punto de partida — ajústala en las variables CSS cuando tengas los valores definitivos.
+Definida en `css/styles.css` (`:root`). El logo es gris neutro, así que el sitio usa un esquema mayormente blanco/gris con azul corporativo sobrio (`--navy`, `--blue-accent`) solo como acento en textos, íconos y botones — no como fondo de secciones completas. Ajusta las variables CSS si el ERP usa tonos distintos.
 
 ## Deploy en Cloudflare Pages
 
@@ -58,8 +70,6 @@ Configurar solo los registros `@` y `www` apuntando al target que entrega Cloudf
 
 ## Pendientes / a confirmar con el cliente
 
-- **Colores y logo definitivos**: se usó una paleta provisional (azul corporativo). Ajustar cuando se confirmen los valores exactos usados en el ERP.
-- **Número de WhatsApp**: se configuró `+56 9 9235 1976` como número de contacto por WhatsApp (botón flotante + íconos). Confirmar si corresponde o si debe ser el otro número (`+56 9 9444 0557`).
-- **Handle de Instagram**: se usó `asesorias_caverco_partnesr_spa` tal como fue indicado. Verificar que no tenga un error de tipeo, ya que de ser así el enlace quedaría roto.
 - **Segundo correo de contacto**: cuando esté disponible, agregarlo junto al actual (`caverco.ad@gmail.com`) en el header, footer y página de contacto.
 - **RUT de la empresa**: no incluido en el footer por no haber sido proporcionado; agregar si se requiere mostrarlo.
+- **Colores exactos del ERP**: aún no confirmados con capturas/hex reales; la paleta actual (gris neutro + acento azul) es una aproximación profesional basada en el logo.
