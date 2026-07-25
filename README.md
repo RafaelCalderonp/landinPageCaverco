@@ -33,7 +33,7 @@ El isotipo es gris oscuro neutro (aprox. `#515455`), sin azul. Si más adelante 
 
 ## Paleta de colores
 
-Definida en `css/styles.css` (`:root`). El logo es gris neutro, así que el sitio usa un esquema mayormente blanco/gris con azul corporativo sobrio (`--navy`, `--blue-accent`) solo como acento en textos, íconos y botones — no como fondo de secciones completas. Ajusta las variables CSS si el ERP usa tonos distintos.
+Definida en `css/styles.css` (`:root`). Alineada a la identidad visual real del ERP (visible en su pantalla de login): negro/carbón (`--ink`) como color principal y dorado (`--gold`) como acento en textos, íconos y botones, sobre neutros cálidos (`--gray-*`) — no azul. Ajusta las variables si el branding del ERP cambia.
 
 ## Deploy en Cloudflare Pages
 
@@ -71,4 +71,4 @@ Configurar solo los registros `@` y `www` apuntando al target que entrega Cloudf
 
 - **Segundo correo de contacto**: cuando esté disponible, agregarlo junto al actual (`caverco.ad@gmail.com`) en el header, footer y página de contacto.
 - **RUT de la empresa**: no incluido en el footer por no haber sido proporcionado; agregar si se requiere mostrarlo.
-- **Colores exactos del ERP**: aún no confirmados con capturas/hex reales; la paleta actual (gris neutro + acento azul) es una aproximación profesional basada en el logo.
+- **Ajuste fino de tonos**: la paleta negro+dorado se estimó visualmente a partir de una captura del login del ERP; si se dispone de los hex exactos, ajustar `--ink` y `--gold` en `css/styles.css`.
