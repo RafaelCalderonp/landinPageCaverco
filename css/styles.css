@@ -598,6 +598,7 @@ h3 { font-size: 1.25rem; line-height: 1.3; }
   font-size: 0.82rem;
   flex-wrap: wrap;
 }
+.footer-bottom a:hover { color: var(--gold); text-decoration: underline; }
 
 /* ---- Floating WhatsApp ---- */
 .whatsapp-float {
