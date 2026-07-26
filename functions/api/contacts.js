@@ -1,37 +1,22 @@
-function unauthorized() {
-  return new Response('Autenticación requerida.', {
-    status: 401,
-    headers: { 'WWW-Authenticate': 'Basic realm="Caverco Partners - Panel de contactos"' },
-  });
-}
+import { checkAuth, jsonResponse } from '../_shared/auth.js';
 
 export async function onRequestGet(context) {
   const { request, env } = context;
 
-  if (!env.ADMIN_USER || !env.ADMIN_PASSWORD) {
-    return new Response(
-      JSON.stringify({ ok: false, error: 'Panel no configurado: faltan credenciales de administrador.' }),
-      { status: 500, headers: { 'Content-Type': 'application/json' } }
-    );
+  const auth = checkAuth(request, env);
+  if (!auth.configured) {
+    return jsonResponse({ ok: false, error: 'Panel no configurado: faltan credenciales de administrador.' }, 500);
   }
-
-  const auth = request.headers.get('Authorization') || '';
-  const expected = 'Basic ' + btoa(`${env.ADMIN_USER}:${env.ADMIN_PASSWORD}`);
-  if (auth !== expected) {
-    return unauthorized();
+  if (!auth.ok) {
+    return jsonResponse({ ok: false, error: 'Usuario o contraseña incorrectos.' }, 401);
   }
 
   try {
     const { results } = await env.DB.prepare(
       'SELECT id, name, email, phone, message, created_at FROM contacts ORDER BY created_at DESC'
     ).all();
-    return new Response(JSON.stringify({ ok: true, contacts: results }), {
-      headers: { 'Content-Type': 'application/json' },
-    });
+    return jsonResponse({ ok: true, contacts: results });
   } catch (err) {
-    return new Response(JSON.stringify({ ok: false, error: 'No se pudo leer la base de datos.' }), {
-      status: 500,
-      headers: { 'Content-Type': 'application/json' },
-    });
+    return jsonResponse({ ok: false, error: 'No se pudo leer la base de datos.' }, 500);
   }
 }

@@ -9,15 +9,17 @@ index.html            Inicio
 quienes-somos.html    Quiénes somos, misión, visión, valores
 servicios.html        Detalle de servicios
 contacto.html         Formulario de contacto + datos
-admin.html             Panel privado para ver los contactos guardados (protegido con usuario/contraseña)
+admin.html             Panel privado: login propio + tabla de contactos con opción de eliminar
 css/styles.css        Estilos (paleta y tipografía)
 js/main.js            Menú móvil, formulario, año dinámico del footer
 assets/logo-full.png  Logo completo (isotipo + wordmark), fondo transparente
 assets/logo-mark.png  Solo el isotipo, usado en el header/footer
 assets/favicon.png    Favicon generado a partir del isotipo
 Logo.png              Archivo original del logo (mockup) tal como fue provisto
-functions/api/contact.js    Cloudflare Pages Function: recibe el formulario y lo guarda en D1
-functions/api/contacts.js   Cloudflare Pages Function: lee los contactos guardados (usada por admin.html), protegida con Basic Auth
+functions/_shared/auth.js        Helper compartido: valida las credenciales del panel
+functions/api/contact.js         Cloudflare Pages Function: recibe el formulario y lo guarda en D1
+functions/api/contacts.js        Cloudflare Pages Function: lista los contactos guardados (GET, protegida)
+functions/api/contacts/[id].js   Cloudflare Pages Function: elimina un contacto por id (DELETE, protegida)
 schema.sql             Esquema de la tabla `contacts` (se ejecuta desde la consola de D1, ver abajo)
 wrangler.toml           Config de Cloudflare Pages, incluye el binding de D1
 robots.txt, sitemap.xml SEO básico (robots.txt excluye admin.html de la indexación)
@@ -58,7 +60,7 @@ Pasos ya realizados (documentados por si hay que rehacerlos, ej. en otro entorno
 
 Dos formas:
 
-1. **Panel del sitio** (recomendado para uso diario): `https://caverco-partners.cl/admin.html` — tabla con fecha, nombre, email, teléfono y mensaje. Requiere las credenciales configuradas más abajo.
+1. **Panel del sitio** (recomendado para uso diario): `https://caverco-partners.cl/admin.html` — pantalla de login propia (usuario/contraseña, con botón para mostrar/ocultar la contraseña) y luego una tabla con fecha, nombre, email, teléfono y mensaje, con botón para eliminar cada contacto. Requiere las credenciales configuradas más abajo. La sesión se guarda en `sessionStorage` del navegador (dura hasta cerrar la pestaña).
 2. **Dashboard de Cloudflare**: abre la base `caverco_contacts` → pestaña **Console** → ejecuta:
    ```sql
    SELECT * FROM contacts ORDER BY created_at DESC;

@@ -13,71 +13,120 @@
 <style>
   .admin-wrap { max-width: 1100px; margin: 0 auto; padding: 40px 24px 80px; }
   .admin-header { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-bottom: 32px; flex-wrap: wrap; }
+  .admin-header-actions { display: flex; gap: 10px; }
   .admin-table-card { background: var(--white); border: 1px solid var(--gray-200); border-radius: var(--radius-lg); overflow: hidden; box-shadow: var(--shadow-sm); }
   table.admin-table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
   table.admin-table th, table.admin-table td { text-align: left; padding: 14px 16px; border-bottom: 1px solid var(--gray-200); vertical-align: top; }
   table.admin-table th { background: var(--gray-50); color: var(--ink); font-weight: 600; font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.04em; }
   table.admin-table tr:last-child td { border-bottom: none; }
-  table.admin-table td.msg { max-width: 340px; white-space: pre-wrap; color: var(--gray-600); }
+  table.admin-table td.msg { max-width: 320px; white-space: pre-wrap; color: var(--gray-600); }
+  table.admin-table td.actions { width: 1%; white-space: nowrap; }
+  .icon-btn { display: inline-flex; align-items: center; justify-content: center; width: 34px; height: 34px; border-radius: var(--radius-sm); border: 1px solid var(--gray-200); background: var(--white); color: var(--gray-600); }
+  .icon-btn:hover { border-color: #B3261E; color: #B3261E; background: #FBEAEA; }
+  .icon-btn svg { width: 17px; height: 17px; }
   .admin-state { padding: 48px 16px; text-align: center; color: var(--gray-600); }
   .admin-state.error { color: #B3261E; }
+
+  .login-wrap { max-width: 380px; margin: 80px auto; padding: 0 24px; }
+  .login-card { background: var(--white); border: 1px solid var(--gray-200); border-radius: var(--radius-lg); padding: 36px; box-shadow: var(--shadow-sm); }
+  .login-card .brand { justify-content: center; margin-bottom: 24px; }
+  .login-card h1 { font-size: 1.3rem; text-align: center; margin-bottom: 24px; }
+  .field-password-wrap { position: relative; }
+  .field-password-wrap input { padding-right: 44px; }
+  .toggle-password { position: absolute; right: 6px; top: 50%; transform: translateY(-50%); background: none; border: none; padding: 6px; color: var(--gray-600); display: flex; }
+  .toggle-password svg { width: 19px; height: 19px; }
+  .login-error { margin-top: 14px; font-size: 0.88rem; color: #B3261E; display: none; }
+  .login-error.show { display: block; }
 </style>
 </head>
 <body>
 
-<div class="admin-wrap">
+<div id="login-view" class="login-wrap">
+  <div class="login-card">
+    <div class="brand">
+      <img class="brand-mark" src="assets/logo-mark.png" alt="Caverco Partners" />
+      <span class="brand-name">Caverco Partners</span>
+    </div>
+    <h1>Panel de Contactos</h1>
+    <form id="login-form">
+      <div class="field">
+        <label for="login-user">Usuario</label>
+        <input type="text" id="login-user" name="user" autocomplete="username" required />
+      </div>
+      <div class="field">
+        <label for="login-pass">Contraseña</label>
+        <div class="field-password-wrap">
+          <input type="password" id="login-pass" name="pass" autocomplete="current-password" required />
+          <button type="button" class="toggle-password" id="toggle-password" aria-label="Mostrar contraseña">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>
+          </button>
+        </div>
+      </div>
+      <button type="submit" class="btn btn-primary btn-block">Ingresar</button>
+      <div class="login-error" id="login-error"></div>
+    </form>
+  </div>
+</div>
+
+<div id="panel-view" class="admin-wrap" style="display:none;">
   <div class="admin-header">
     <div class="brand">
       <img class="brand-mark" src="assets/logo-mark.png" alt="Caverco Partners" />
       <span class="brand-name">Caverco Partners<small>Panel de Contactos</small></span>
     </div>
-    <button class="btn btn-outline" id="refresh-btn">Actualizar</button>
+    <div class="admin-header-actions">
+      <button class="btn btn-outline" id="refresh-btn">Actualizar</button>
+      <button class="btn btn-outline" id="logout-btn">Cerrar sesión</button>
+    </div>
   </div>
 
   <div class="admin-table-card">
     <div id="admin-content">
-      <div class="admin-state" id="admin-loading">Cargando contactos...</div>
+      <div class="admin-state">Cargando contactos...</div>
     </div>
   </div>
 </div>
 
 <script>
-async function loadContacts() {
-  const content = document.getElementById('admin-content');
-  content.innerHTML = '<div class="admin-state">Cargando contactos...</div>';
-  try {
-    const res = await fetch('/api/contacts');
-    if (!res.ok) {
-      const data = await res.json().catch(() => ({}));
-      content.innerHTML = `<div class="admin-state error">${data.error || 'No se pudo cargar (' + res.status + ').'}</div>`;
-      return;
-    }
-    const data = await res.json();
-    const contacts = data.contacts || [];
-    if (contacts.length === 0) {
-      content.innerHTML = '<div class="admin-state">Todavía no hay mensajes registrados.</div>';
-      return;
-    }
-    const rows = contacts.map((c) => `
-      <tr>
-        <td>${new Date(c.created_at).toLocaleString('es-CL')}</td>
-        <td>${escapeHtml(c.name)}</td>
-        <td><a href="mailto:${escapeHtml(c.email)}">${escapeHtml(c.email)}</a></td>
-        <td>${c.phone ? `<a href="tel:${escapeHtml(c.phone)}">${escapeHtml(c.phone)}</a>` : '—'}</td>
-        <td class="msg">${escapeHtml(c.message)}</td>
-      </tr>
-    `).join('');
-    content.innerHTML = `
-      <table class="admin-table">
-        <thead>
-          <tr><th>Fecha</th><th>Nombre</th><th>Email</th><th>Teléfono</th><th>Mensaje</th></tr>
-        </thead>
-        <tbody>${rows}</tbody>
-      </table>
-    `;
-  } catch (err) {
-    content.innerHTML = '<div class="admin-state error">Error de conexión al cargar los contactos.</div>';
+const EYE_OPEN = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>';
+const EYE_CLOSED = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/><path d="M3 3l18 18"/></svg>';
+const TRASH_ICON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16M9 7V4.5A1.5 1.5 0 0 1 10.5 3h3A1.5 1.5 0 0 1 15 4.5V7M6 7l1 13a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2l1-13"/></svg>';
+
+const STORAGE_KEY = 'caverco_admin_auth';
+
+const loginView = document.getElementById('login-view');
+const panelView = document.getElementById('panel-view');
+const loginForm = document.getElementById('login-form');
+const loginError = document.getElementById('login-error');
+
+document.getElementById('toggle-password').addEventListener('click', (e) => {
+  const btn = e.currentTarget;
+  const input = document.getElementById('login-pass');
+  const showing = input.type === 'text';
+  input.type = showing ? 'password' : 'text';
+  btn.innerHTML = showing ? EYE_OPEN : EYE_CLOSED;
+  btn.setAttribute('aria-label', showing ? 'Mostrar contraseña' : 'Ocultar contraseña');
+});
+document.getElementById('toggle-password').innerHTML = EYE_OPEN;
+
+function showLoginError(msg) {
+  loginError.textContent = msg;
+  loginError.classList.add('show');
+}
+
+function authHeader() {
+  return sessionStorage.getItem(STORAGE_KEY);
+}
+
+async function tryLoadWithAuth(header) {
+  const res = await fetch('/api/contacts', { headers: { Authorization: header } });
+  if (res.status === 401) return { ok: false, expired: true };
+  if (!res.ok) {
+    const data = await res.json().catch(() => ({}));
+    return { ok: false, error: data.error || `Error (${res.status}).` };
   }
+  const data = await res.json();
+  return { ok: true, contacts: data.contacts || [] };
 }
 
 function escapeHtml(str) {
@@ -86,8 +135,116 @@ function escapeHtml(str) {
   return div.innerHTML;
 }
 
+function renderContacts(contacts) {
+  const content = document.getElementById('admin-content');
+  if (contacts.length === 0) {
+    content.innerHTML = '<div class="admin-state">Todavía no hay mensajes registrados.</div>';
+    return;
+  }
+  const rows = contacts.map((c) => `
+    <tr data-id="${c.id}">
+      <td>${new Date(c.created_at).toLocaleString('es-CL')}</td>
+      <td>${escapeHtml(c.name)}</td>
+      <td><a href="mailto:${escapeHtml(c.email)}">${escapeHtml(c.email)}</a></td>
+      <td>${c.phone ? `<a href="tel:${escapeHtml(c.phone)}">${escapeHtml(c.phone)}</a>` : '—'}</td>
+      <td class="msg">${escapeHtml(c.message)}</td>
+      <td class="actions"><button class="icon-btn delete-btn" data-id="${c.id}" aria-label="Eliminar contacto">${TRASH_ICON}</button></td>
+    </tr>
+  `).join('');
+  content.innerHTML = `
+    <table class="admin-table">
+      <thead>
+        <tr><th>Fecha</th><th>Nombre</th><th>Email</th><th>Teléfono</th><th>Mensaje</th><th></th></tr>
+      </thead>
+      <tbody>${rows}</tbody>
+    </table>
+  `;
+  content.querySelectorAll('.delete-btn').forEach((btn) => {
+    btn.addEventListener('click', () => deleteContact(btn.dataset.id));
+  });
+}
+
+async function deleteContact(id) {
+  if (!confirm('¿Eliminar este contacto? Esta acción no se puede deshacer.')) return;
+  try {
+    const res = await fetch(`/api/contacts/${id}`, {
+      method: 'DELETE',
+      headers: { Authorization: authHeader() },
+    });
+    if (res.status === 401) {
+      sessionStorage.removeItem(STORAGE_KEY);
+      showPanel(false);
+      return;
+    }
+    if (!res.ok) {
+      alert('No se pudo eliminar el contacto.');
+      return;
+    }
+    loadContacts();
+  } catch (err) {
+    alert('Error de conexión al eliminar.');
+  }
+}
+
+async function loadContacts() {
+  const content = document.getElementById('admin-content');
+  content.innerHTML = '<div class="admin-state">Cargando contactos...</div>';
+  const header = authHeader();
+  if (!header) { showPanel(false); return; }
+  const result = await tryLoadWithAuth(header);
+  if (result.expired) {
+    sessionStorage.removeItem(STORAGE_KEY);
+    showPanel(false);
+    return;
+  }
+  if (!result.ok) {
+    content.innerHTML = `<div class="admin-state error">${result.error}</div>`;
+    return;
+  }
+  renderContacts(result.contacts);
+}
+
+function showPanel(show) {
+  loginView.style.display = show ? 'none' : 'block';
+  panelView.style.display = show ? 'block' : 'none';
+}
+
+loginForm.addEventListener('submit', async (e) => {
+  e.preventDefault();
+  loginError.classList.remove('show');
+  const user = document.getElementById('login-user').value.trim();
+  const pass = document.getElementById('login-pass').value;
+  const header = 'Basic ' + btoa(`${user}:${pass}`);
+  const submitBtn = loginForm.querySelector('button[type="submit"]');
+  submitBtn.disabled = true;
+  const result = await tryLoadWithAuth(header).catch(() => ({ ok: false, error: 'Error de conexión.' }));
+  submitBtn.disabled = false;
+  if (result.expired) {
+    showLoginError('Usuario o contraseña incorrectos.');
+    return;
+  }
+  if (!result.ok) {
+    showLoginError(result.error || 'Error desconocido.');
+    return;
+  }
+  sessionStorage.setItem(STORAGE_KEY, header);
+  showPanel(true);
+  renderContacts(result.contacts);
+});
+
 document.getElementById('refresh-btn').addEventListener('click', loadContacts);
-loadContacts();
+document.getElementById('logout-btn').addEventListener('click', () => {
+  sessionStorage.removeItem(STORAGE_KEY);
+  showPanel(false);
+});
+
+// Al cargar la página, si hay sesión guardada, intenta usarla directo.
+if (authHeader()) {
+  showPanel(true);
+  loadContacts();
+} else {
+  showPanel(false);
+}
 </script>
 </body>
 </html>
