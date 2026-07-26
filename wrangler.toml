@@ -2,8 +2,7 @@ name = "caverco-partners-landing"
 compatibility_date = "2024-09-01"
 pages_build_output_dir = "."
 
-# El binding de D1 (base de datos "caverco_contacts") se agrega desde el
-# dashboard de Cloudflare Pages: Settings -> Functions -> D1 database
-# bindings, una vez creada la base de datos (Workers & Pages -> D1 ->
-# Create database). No se declara aquí para no romper el deploy con un
-# id de ejemplo. Ver README.md para el paso a paso.
+[[d1_databases]]
+binding = "DB"
+database_name = "caverco_contacts"
+database_id = "7759c750-1fe4-474a-b3db-9c977c158bb4"
