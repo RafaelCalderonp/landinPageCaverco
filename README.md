@@ -41,16 +41,16 @@ Definida en `css/styles.css` (`:root`). Alineada a la identidad visual real del 
 2. Build settings: sin framework, **sin comando de build**, directorio de salida: `/` (raíz).
 3. Cloudflare detecta automáticamente la carpeta `functions/` y despliega `functions/api/contact.js` como Pages Function.
 
-## Configurar la base de datos (Cloudflare D1) — solo desde el dashboard
+## Configurar la base de datos (Cloudflare D1)
 
-No hace falta instalar `wrangler` ni usar la terminal, todo se hace desde dash.cloudflare.com:
+La base de datos `caverco_contacts` ya está creada y su binding declarado en `wrangler.toml` (`database_id`). Como el proyecto tiene `wrangler.toml`, Cloudflare Pages **bloquea la edición de bindings desde el dashboard** ("Bindings for this project are being managed through wrangler.toml") — cualquier cambio futuro al binding de D1 se hace editando ese archivo y desplegando, no desde Settings → Functions.
 
-1. **Workers & Pages → D1 SQL Database → Create database**. Nómbrala `caverco_contacts` y créala.
-2. Entra a la base recién creada → pestaña **Console** → pega el contenido de `schema.sql` (crea la tabla `contacts`) → **Execute**.
-3. Ve al proyecto de Pages (`landinpagecaverco`) → **Settings → Functions → D1 database bindings → Add binding**:
-   - Variable name: `DB`
-   - D1 database: `caverco_contacts`
-4. Guarda y vuelve a la pestaña **Deployments** → en el último deployment, **Retry deployment** (o simplemente espera al próximo push) para que la Function tome el binding nuevo.
+Pasos ya realizados (documentados por si hay que rehacerlos, ej. en otro entorno):
+
+1. **Workers & Pages → D1 SQL Database → Create database**, nombre `caverco_contacts`.
+2. En la base → pestaña **Console** → pegar el contenido de `schema.sql` → **Execute** (crea la tabla `contacts`).
+3. Copiar el **Database ID** de la base y pegarlo en `wrangler.toml` bajo `[[d1_databases]]`.
+4. Desplegar (push a `main` o **Retry deployment**) para que la Function tome el binding.
 
 ### Consultar los contactos guardados
 
