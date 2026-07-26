@@ -37,6 +37,8 @@
   .toggle-password svg { width: 19px; height: 19px; }
   .login-error { margin-top: 14px; font-size: 0.88rem; color: #B3261E; display: none; }
   .login-error.show { display: block; }
+  .login-notice { margin-bottom: 18px; font-size: 0.88rem; color: var(--gold-dark); background: var(--gold-soft); border-radius: var(--radius-sm); padding: 10px 14px; display: none; }
+  .login-notice.show { display: block; }
 </style>
 </head>
 <body>
@@ -48,6 +50,7 @@
       <span class="brand-name">Caverco Partners</span>
     </div>
     <h1>Panel de Contactos</h1>
+    <div class="login-notice" id="login-notice"></div>
     <form id="login-form">
       <div class="field">
         <label for="login-user">Usuario</label>
@@ -93,11 +96,44 @@ const EYE_CLOSED = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" s
 const TRASH_ICON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16M9 7V4.5A1.5 1.5 0 0 1 10.5 3h3A1.5 1.5 0 0 1 15 4.5V7M6 7l1 13a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2l1-13"/></svg>';
 
 const STORAGE_KEY = 'caverco_admin_auth';
+const IDLE_TIMEOUT_MS = 5 * 60 * 1000; // 5 minutos sin actividad
 
 const loginView = document.getElementById('login-view');
 const panelView = document.getElementById('panel-view');
 const loginForm = document.getElementById('login-form');
 const loginError = document.getElementById('login-error');
+const loginNotice = document.getElementById('login-notice');
+
+let idleTimer = null;
+
+function showLoginNotice(msg) {
+  loginNotice.textContent = msg;
+  loginNotice.classList.add('show');
+}
+function hideLoginNotice() {
+  loginNotice.classList.remove('show');
+}
+
+function resetIdleTimer() {
+  if (!authHeader()) return;
+  clearTimeout(idleTimer);
+  idleTimer = setTimeout(handleIdleTimeout, IDLE_TIMEOUT_MS);
+}
+
+function stopIdleTimer() {
+  clearTimeout(idleTimer);
+  idleTimer = null;
+}
+
+function handleIdleTimeout() {
+  sessionStorage.removeItem(STORAGE_KEY);
+  showPanel(false);
+  showLoginNotice('Sesión cerrada por inactividad. Ingresa de nuevo.');
+}
+
+['mousemove', 'keydown', 'click', 'scroll', 'touchstart'].forEach((evt) => {
+  document.addEventListener(evt, resetIdleTimer, { passive: true });
+});
 
 document.getElementById('toggle-password').addEventListener('click', (e) => {
   const btn = e.currentTarget;
@@ -207,11 +243,17 @@ async function loadContacts() {
 function showPanel(show) {
   loginView.style.display = show ? 'none' : 'block';
   panelView.style.display = show ? 'block' : 'none';
+  if (show) {
+    resetIdleTimer();
+  } else {
+    stopIdleTimer();
+  }
 }
 
 loginForm.addEventListener('submit', async (e) => {
   e.preventDefault();
   loginError.classList.remove('show');
+  hideLoginNotice();
   const user = document.getElementById('login-user').value.trim();
   const pass = document.getElementById('login-pass').value;
   const header = 'Basic ' + btoa(`${user}:${pass}`);
