@@ -9,16 +9,18 @@ index.html            Inicio
 quienes-somos.html    Quiénes somos, misión, visión, valores
 servicios.html        Detalle de servicios
 contacto.html         Formulario de contacto + datos
+admin.html             Panel privado para ver los contactos guardados (protegido con usuario/contraseña)
 css/styles.css        Estilos (paleta y tipografía)
 js/main.js            Menú móvil, formulario, año dinámico del footer
 assets/logo-full.png  Logo completo (isotipo + wordmark), fondo transparente
 assets/logo-mark.png  Solo el isotipo, usado en el header/footer
 assets/favicon.png    Favicon generado a partir del isotipo
 Logo.png              Archivo original del logo (mockup) tal como fue provisto
-functions/api/contact.js   Cloudflare Pages Function: recibe el formulario y lo guarda en D1
+functions/api/contact.js    Cloudflare Pages Function: recibe el formulario y lo guarda en D1
+functions/api/contacts.js   Cloudflare Pages Function: lee los contactos guardados (usada por admin.html), protegida con Basic Auth
 schema.sql             Esquema de la tabla `contacts` (se ejecuta desde la consola de D1, ver abajo)
-wrangler.toml           Config de Cloudflare Pages (el binding de D1 se agrega desde el dashboard, no aquí)
-robots.txt, sitemap.xml SEO básico
+wrangler.toml           Config de Cloudflare Pages, incluye el binding de D1
+robots.txt, sitemap.xml SEO básico (robots.txt excluye admin.html de la indexación)
 _headers                Cabeceras de seguridad para Cloudflare Pages
 ```
 
@@ -54,11 +56,26 @@ Pasos ya realizados (documentados por si hay que rehacerlos, ej. en otro entorno
 
 ### Consultar los contactos guardados
 
-En el dashboard: abre la base `caverco_contacts` → pestaña **Console** → ejecuta:
+Dos formas:
 
-```sql
-SELECT * FROM contacts ORDER BY created_at DESC;
-```
+1. **Panel del sitio** (recomendado para uso diario): `https://caverco-partners.cl/admin.html` — tabla con fecha, nombre, email, teléfono y mensaje. Requiere las credenciales configuradas más abajo.
+2. **Dashboard de Cloudflare**: abre la base `caverco_contacts` → pestaña **Console** → ejecuta:
+   ```sql
+   SELECT * FROM contacts ORDER BY created_at DESC;
+   ```
+   O la pestaña **Tables** para verla sin escribir SQL.
+
+### Configurar el acceso al panel (`admin.html`)
+
+El panel está protegido con autenticación básica (usuario/contraseña que pide el navegador). Hay que definir las credenciales como variables de entorno **secretas** en Cloudflare:
+
+1. Proyecto de Pages (`landinpagecaverco`) → **Settings → Variables and secrets**.
+2. Agregar, como tipo **Secret** (no texto plano), para el entorno **Production**:
+   - `ADMIN_USER`: el usuario que quieras usar para entrar.
+   - `ADMIN_PASSWORD`: una contraseña segura.
+3. Guardar y volver a desplegar (push a `main` o Retry deployment) para que la Function las tome.
+
+Sin estas dos variables configuradas, `admin.html` va a mostrar un error indicando que el panel no está configurado.
 
 ## DNS (según brief original)
 
