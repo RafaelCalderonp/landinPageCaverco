@@ -88,6 +88,5 @@ Configurar solo los registros `@` y `www` apuntando al target que entrega Cloudf
 
 ## Pendientes / a confirmar con el cliente
 
-- **Segundo correo de contacto**: cuando esté disponible, agregarlo junto al actual (`caverco.ad@gmail.com`) en el header, footer y página de contacto.
 - **RUT de la empresa**: no incluido en el footer por no haber sido proporcionado; agregar si se requiere mostrarlo.
 - **Ajuste fino de tonos**: la paleta negro+dorado se estimó visualmente a partir de una captura del login del ERP; si se dispone de los hex exactos, ajustar `--ink` y `--gold` en `css/styles.css`.
