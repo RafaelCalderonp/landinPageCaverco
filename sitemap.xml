@@ -6,17 +6,17 @@
     <priority>1.0</priority>
   </url>
   <url>
-    <loc>https://www.caverco-partners.cl/quienes-somos.html</loc>
+    <loc>https://www.caverco-partners.cl/quienes-somos</loc>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://www.caverco-partners.cl/servicios.html</loc>
+    <loc>https://www.caverco-partners.cl/servicios</loc>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://www.caverco-partners.cl/contacto.html</loc>
+    <loc>https://www.caverco-partners.cl/contacto</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
